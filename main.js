@@ -66,9 +66,9 @@ function run(tests, before, before_each, after) {
 		} else {
 		}
 
-		_run_tests();
+		_run_tests(tests,  before_each);
 
-		if is_function(after) {
+		if (is_function(after)) {
 			after();
 		} else {
 		}
@@ -86,15 +86,17 @@ function run(tests, before, before_each, after) {
 function _run_tests(tests, before_each) {
 	const num_tests = length(tests);
 	for (let i = 0; i < num_tests; i = i + 1) {
-		if is_function(before_each) {
+		if (is_function(before_each)) {
 			before_each();
 		} else {
 		}
 
-		display(SEPARATOR);
 		const test = list_ref(tests, i);
-		_run_test(test, i+1, num_tests);
-		_test_result();
+		const test_name = variable_declaration_name(parse(test));
+
+		display(SEPARATOR);
+		_run_test(test, i+1, test_name, num_tests);
+		_test_result(test_name);
 		display(SEPARATOR);
 	}
 }
@@ -103,29 +105,29 @@ function _run_tests(tests, before_each) {
  * Runs a single test
  * @param test a function representing the test to run
  * @param test_number the number of the test, amongst all tests to run
+ * @param test_name the name of the function representing the test
  * @param num_tests the total number of tests to run
 */
-function _run_test(test, test_number, num_tests) {
+function _run_test(test, test_number, test_name, num_tests) {
 	if (!is_function(test)) {
 			error("a test must be a function");
 	} else {
+		display("Running test " + stringify(test_number) + "/" + stringify(num_tests) + ": " + test_name);
+		num_run = num_run + 1;
+		test();
 	}
-
-	const test_name = variable_declaration_name(parse(test));
-	display("Running test " + stringify(test_number) + "/" + stringify(num_tests) + ": " + test_name);
-	num_run = num_run + 1;
-	test();
 }
 
 /**
  * Handles the result of running a single test
+ * @param test_name the name of the function representing the test
 */
-function _test_result() {
+function _test_result(test_name) {
 	if (current_test_status === TEST_PASS) {
-		display(to_run_name + " PASSED");
+		display(test_name + " PASSED");
 		num_pass = num_pass + 1;
 	}  else {
-		display(to_run_name + " FAILED");
+		display(test_name + " FAILED");
 	}
 
 	current_test_status = TEST_PASS; // reset test status
