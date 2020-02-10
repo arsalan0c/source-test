@@ -13,8 +13,13 @@ let elapsed_time = 0;
 
 let current_test_status = TEST_PASS;
 
-function assert(value, message) {
-	const res = !value
+/**
+ * Checks if the given condition evaluates to true 
+ * @param condition
+ * @param message to be printed if the condition evaluates to false
+*/
+function assert(condition, message) {
+	const res = !condition
 		? EARLY_ABORT
 			? report_error(message)
 			: message
@@ -40,6 +45,11 @@ function report_error(message) {
 	error(message);
 }
 
+/** 
+ * Checks if the expected and result values are equal
+ * @param expected
+ * @param result
+*/
 function assert_equal(expected, result) {
 	const error_message = "assert_equal failed: " + stringify(result) + " (result) not equal to " + stringify(expected) + " (expected)";
 	assert(equal(expected, result), error_message);
@@ -112,7 +122,7 @@ function _run_test(test, test_number, test_name, num_tests) {
 	if (!is_function(test)) {
 			error("a test must be a function");
 	} else {
-		display("Running test " + stringify(test_number) + "/" + stringify(num_tests) + ": " + test_name);
+		display(test_name, "Running test " + stringify(test_number) + "/" + stringify(num_tests) + ":");
 		num_run = num_run + 1;
 		test();
 	}
@@ -138,15 +148,16 @@ function _test_result(test_name) {
 */
 function report() {
 	display(SEPARATOR);
-	display(" SUMMARY");
+	display("SUMMARY");
 	display(SEPARATOR);
-	display("Tests passed: " + stringify(num_pass));
-	display("Tests failed: " + stringify(num_run - num_pass));
-	display("Assertions passed: " + stringify(num_assert_pass));
-	display("Assertions failed: " + stringify(num_assert_fail));
+	display(num_pass, "Tests passed:");
+	display(num_run - num_pass, "Tests failed:");
+	display(num_assert_pass, "Assertions passed:");
+	display(num_assert_fail, "Assertions failed:");
 
 	const time_taken = elapsed_time >= 1000 ? stringify(ms_to_s(elapsed_time)) + " s" : stringify(elapsed_time) + " ms";
-	display("Time taken: " + time_taken);
+	display(time_taken, "Time taken:");
+
 }
 
 /**
